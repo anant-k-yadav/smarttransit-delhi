@@ -156,12 +156,11 @@ http://localhost:3000
 - Checked that the prototype clearly distinguishes historical demand from live occupancy or live arrival data.
 
 ## Team
-
 This is a joint team project. Both members contributed equally to the project research, data understanding, feature planning, testing, documentation, and final hackathon preparation.
 
+| Team Member | Role |
+|---|---|
 | **Shri Narayan Tiwari** | Co-Creator — research, feature planning, testing, documentation, demo preparation, and submission coordination |
-
-
 | **Anant K. Yadav** | Co-Creator — data integration, interface refinement, testing, documentation, demo preparation, and project implementation |
 
 Built for **Transport Stack Hackathon 2026 — Problem 2: Crowdedness-Aware Journey Planner**.
