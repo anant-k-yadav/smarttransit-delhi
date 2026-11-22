@@ -119,7 +119,7 @@ SmartTransit Delhi is deliberately transparent about what it can and cannot clai
 - **Maps:** Leaflet and OpenStreetMap
 - **Charts:** Recharts
 - **Testing:** Node test runner with `tsx`
-- **Development environment:** Google AI Studio Build
+
 
 No user login, paid API, backend database, Firebase, Google Maps key, or external runtime API key is required.
 
@@ -146,9 +146,6 @@ The local development server runs at:
 http://localhost:3000
 ```
 
-## Development Note
-
-This project was built with React, TypeScript, and Google AI Studio Build. Google AI Studio was used as the development environment; the project-specific work includes selecting and integrating the Delhi GTFS and historical e-ticketing datasets, defining the exact route-matching and demand-estimation methodology, validating outputs, testing the planner, documenting limitations, and preparing the final prototype.
 
 
 ## Testing Performed
@@ -162,11 +159,7 @@ This project was built with React, TypeScript, and Google AI Studio Build. Googl
 
 This is a joint team project. Both members contributed equally to the project research, data understanding, feature planning, testing, documentation, and final hackathon preparation.
 
-| Team Member | Role and Contributions |
-|---|---|
-| **Shri Narayan Tiwari** | Co-Creator and Project Owner — problem research, journey-planner feature design, data-methodology review, testing, documentation, demo preparation, and final submission coordination |
-| **Anant K. Yadav** | Co-Creator and Technical Contributor — Google AI Studio development, frontend implementation, data integration, interface refinement, testing, documentation, and demo preparation |
-
----
+| **Shri Narayan Tiwari** | Co-Creator — research, feature planning, testing, documentation, demo preparation, and submission coordination |
+| **Anant K. Yadav** | Co-Creator — data integration, interface refinement, testing, documentation, demo preparation, and project implementation |
 
 Built for **Transport Stack Hackathon 2026 — Problem 2: Crowdedness-Aware Journey Planner**.
