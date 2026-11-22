@@ -1,0 +1,6 @@
+{
+  "name": "SmartTransit Delhi",
+  "description": "Crowdedness-aware public transit journey planner and analytics dashboard for Delhi (Transport Stack Hackathon 2026 — Problem 2).",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
