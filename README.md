@@ -1,115 +1,164 @@
 # SmartTransit Delhi — Crowdedness-Aware Journey Planner
 
-**Transport Stack Hackathon 2026 · Problem 2**
+**Transport Stack Hackathon 2026 · Problem 2**  
+**Live Prototype:** [Open SmartTransit Delhi](https://smarttransit-delhi-1.ai.studio)
 
-**Live Demo:** [https://smarttransit-delhi-1.ai.studio](https://smarttransit-delhi-1.ai.studio)
+SmartTransit Delhi is a browser-based Delhi bus journey planner and historical demand explorer. It helps commuters compare direct and one-transfer bus journeys by scheduled journey time, transfers, and expected historical ticketing demand—without claiming live bus telemetry or actual onboard occupancy.
 
-SmartTransit Delhi is a browser-local Delhi bus journey planner and historical demand explorer that helps commuters compare direct and 1-transfer DTC/DIMTS bus options by **scheduled travel time, transfers, and expected within-route demand window**—without paid APIs, backends, or fabricated live telemetry.
+## Problem
 
----
+Delhi bus journey planners usually show routes and scheduled timings, but commuters do not know which routes or time windows historically experience higher passenger demand.
 
-## Problem & Solution
+Problem 2 asks for a crowdedness-aware journey planner using Delhi transit data. The aim is to help users make more informed and comfortable travel choices.
 
-### Problem
-Urban bus commuters in Delhi often see scheduled route listings without visibility into when a corridor experiences its heaviest historical passenger load, or which alternative routes and off-peak departure windows carry lower demand.
+## Our Solution
 
-### Solution
-SmartTransit Delhi joins **Delhi's static bus GTFS feed** with **October 2026 historical e-ticketing demand summaries** directly in the browser to provide:
-- **Crowdedness-aware bus routing**: Evaluates direct and 1-transfer bus journeys across 6,862 stops and 2,574 routes with `Balanced`, `Lower Demand`, and `Fewest Transfers` ranking priorities.
-- **Lower-demand alternatives & off-peak hints**: Surfaces calmer alternative routes on the same corridor and off-peak time-slot suggestions when peak demand is high.
-- **Judge Demo (Peak vs. Off-Peak Comparison)**: One-click comparison on a real Delhi corridor (`AIIMS Ring Road → Nehru Place Terminal`) comparing Weekday Morning Peak (`09:00`) against Weekday Midday / Off-Peak (`13:30`).
-- **Interactive Leaflet + OpenStreetMap view**: Plots GTFS route polylines, walking transfer/bay connectors, origin/transfer/destination hubs, and expandable intermediate stop lists.
-- **Historical Demand Analytics**: Explores peak vs. off-peak and weekday vs. weekend demand patterns, route volume rankings, and unmatched ticketing route codes.
-- **Dataset & Methodology Transparency**: Provides downloadable `route_match_report.csv` and `validation_report.json`, explicit segment flags, and data-truth guarantees.
+SmartTransit Delhi combines Delhi static GTFS data with October 2026 historical e-ticketing data. Users can:
 
----
+- Search for direct and one-transfer bus journeys.
+- Compare journey options using **Balanced**, **Lower Demand**, or **Fewest Transfers** priorities.
+- View estimated historical demand for the chosen route, day type, and time window.
+- Compare peak and off-peak demand patterns.
+- View route maps, stops, transfer points, and schedule-based travel duration.
+- Explore demand analytics and transparent data-quality information.
+
+## Key Features
+
+- **Crowdedness-aware routing:** Evaluates direct and one-transfer journeys across 6,862 Delhi bus stops and 2,574 routes.
+- **Lower-demand alternatives:** Suggests calmer route or time-window alternatives where available.
+- **Peak vs. off-peak comparison:** Demonstrates how historical demand changes between weekday peak and off-peak periods.
+- **Interactive route maps:** Uses Leaflet and OpenStreetMap to display GTFS route paths, stops, transfer hubs, and walking connectors.
+- **Historical demand analytics:** Shows route demand patterns by weekday/weekend and time slot.
+- **Transparent methodology:** Clearly distinguishes matched and unmatched route codes and explains the limitations of historical demand estimates.
+- **Mobile-friendly interface:** Designed to work on desktop and phone screens.
 
 ## Real Datasets Used
 
-All datasets are pre-processed into static JSON/CSV assets under `public/assets/aistudio/` and executed 100% locally in the browser:
+All data is processed into static browser assets. No paid API, backend database, or fabricated live telemetry is used.
 
 | Dataset | Details |
-| :--- | :--- |
-| **Delhi Static Bus GTFS (`v32`)** | Source `delhi_buses_static_gtfs_v1.zip` (DTC & DIMTS) · **6,862** stops with valid coordinates · **2,574** bus routes (`1,814` DTC, `760` DIMTS, `routeType = 3`) · **80,357** scheduled trips · **80,859** adjacent segments (`72` flagged for duration review) · **3,498** simplified shapes |
-| **October 2026 E-Ticketing Demand** | Source `October-Delhi.csv.zip` (`Asia/Kolkata`) · **2,559,899** valid ticket rows · **2,753,606** ticketed passengers across **22** weekdays and **9** weekend days (`2026-10-01` to `2026-10-31`) · **2,259** ticketing route codes |
-| **Exact Route Join Coverage** | **1,980** exact GTFS-to-ticketing route matches (**87.65%** of ticketing routes) · **279** unmatched ticketing codes kept explicitly separate |
-
----
+|---|---|
+| Delhi Static Bus GTFS | DTC and DIMTS data with 6,862 stops, 2,574 bus routes, 80,357 scheduled trips, and 3,498 simplified route shapes |
+| October 2026 E-Ticketing Demand | 2,559,899 valid ticket rows representing 2,753,606 ticketed passengers from 1–31 October 2026 |
+| Exact Route Join Coverage | 1,980 exact GTFS-to-ticketing route matches, covering 87.65% of ticketing route codes |
+| Unmatched Codes | 279 unmatched ticketing route codes are kept separate and never guessed or force-matched |
 
 ## Methodology
 
-1. **Exact Route Matching (Zero Fuzzy Guessing)**
-   - Ticketing route codes are matched strictly via case-insensitive exact string equality to GTFS `route_short_name`.
-   - Unmatched GTFS routes and unmatched ticketing route codes (`279`) are explicitly labeled **Unmatched** and separated from matched analytics.
+### 1. Exact route matching
 
-2. **Day-Type & IST Time-Slot Demand Estimates**
-   - Valid e-ticketing records are grouped by matched route, day type (`weekday` vs. `weekend`), and 5 local IST windows:
-     - **Early Morning:** `05:00–07:59` (3h)
-     - **Morning Peak:** `08:00–10:59` (3h)
-     - **Midday:** `11:00–16:59` (6h)
-     - **Evening Peak:** `17:00–20:59` (4h)
-     - **Late Evening:** `21:00–04:59` (8h)
-   - Hourly rate is computed as `sum(ticketed_passengers) / dataset_days_of_type / slot_hours`. Sub-`0.1` positive rates are displayed as `<0.1 pax/hr`.
+Ticketing route codes are matched to GTFS `route_short_name` values using case-insensitive exact matching.
 
-3. **Within-Route Normalization**
-   - For each matched route independently, its **Within-Route Demand Index (`0–100`)** is calculated as:
-     $$\text{Within-Route Index} = \frac{\text{Window Avg Pax/Hr}}{\text{Highest Window Avg Pax/Hr for the Same Route}} \times 100$$
-   - Indices map to `Low`, `Moderate`, `High`, and `Very high` within-route demand bands.
+No fuzzy matching is used. If a route does not match exactly, it is labelled as unmatched rather than being incorrectly assigned to another route.
 
-4. **Schedule-Based Journey Estimation**
-   - Segment travel times sum GTFS stop-to-stop scheduled average durations across the boarded route leg, adding an 8-minute interchange buffer for 1-transfer journeys.
+### 2. Historical demand estimation
 
----
+Valid ticketing records are grouped by:
 
-## Limitations & Data Truth Guarantees
+- Matched route
+- Day type: weekday or weekend
+- Local IST time window
 
-- **Historical demand estimate, not live telemetry:** October 2026 ticketing counts reflect historical boarding demand by route and time window. They do **not** measure real-time bus GPS locations, live arrival times, vehicle capacity, or actual onboard seat/standing occupancy.
-- **No cross-route crowding comparison via index:** Because the `0–100` demand index is normalized relative to each route's own peak window, a `100/100` on one route does not mean identical absolute passenger load as `100/100` on another route. Cross-route scale uses `pax/hr` and total October 2026 ticketed passengers.
-- **Static schedule estimates only:** Travel durations come from static GTFS timetables (`72` irregular adjacent segments are flagged for review in the UI).
-- **Bus-only feed:** All 2,574 GTFS routes are bus routes (`routeType = 3`). No metro routes, fares, or live traffic feeds are invented.
+Time windows used:
 
----
+| Time window | Hours |
+|---|---|
+| Early Morning | 05:00–07:59 |
+| Morning Peak | 08:00–10:59 |
+| Midday | 11:00–16:59 |
+| Evening Peak | 17:00–20:59 |
+| Late Evening | 21:00–04:59 |
+
+Historical average passenger demand is calculated as:
+
+```text
+Average Pax/Hour =
+Total ticketed passengers in a route-time window
+÷ Number of matching dataset days
+÷ Number of hours in that time window
+```
+
+Very small positive values are displayed as `<0.1 pax/hr`.
+
+### 3. Within-route demand index
+
+Each route receives a historical demand index from 0–100 based on its own busiest time window:
+
+```text
+Within-Route Demand Index =
+Current Window Average Pax/Hour
+÷ Highest Window Average Pax/Hour for the Same Route
+× 100
+```
+
+The index is labelled as Low, Moderate, High, or Very High demand.
+
+This index is useful for comparing time windows on the **same route**. It should not be used alone to compare absolute passenger load between different routes; absolute `pax/hr` is shown separately.
+
+### 4. Journey estimation
+
+- Route legs are derived from static GTFS stop sequences and scheduled stop-to-stop durations.
+- One-transfer journeys include an 8-minute interchange buffer.
+- Journey duration is a static schedule estimate, not a live traffic or live arrival prediction.
+
+## Data Truth and Limitations
+
+SmartTransit Delhi is deliberately transparent about what it can and cannot claim.
+
+- Historical ticketing demand is **not** live bus GPS data.
+- It is **not** a live bus arrival prediction system.
+- It does **not** measure actual onboard occupancy, empty seats, standing passengers, or vehicle capacity.
+- Travel duration is based on static GTFS schedules, not real-time traffic.
+- The current prototype covers bus routes only; it does not invent metro, fare, or live traffic data.
+- Unmatched ticketing codes remain visible as unmatched instead of being estimated through guesswork.
 
 ## Technology Stack
 
-- **Frontend:** React 19, TypeScript, Vite 8
-- **Styling:** Tailwind CSS v4, Lucide React
-- **Maps:** Leaflet + OpenStreetMap raster tiles
+- **Frontend:** React 19, TypeScript, Vite
+- **Styling:** Tailwind CSS
+- **Maps:** Leaflet and OpenStreetMap
 - **Charts:** Recharts
-- **Testing:** Node built-in test runner via `tsx`
+- **Testing:** Node test runner with `tsx`
+- **Development environment:** Google AI Studio Build
 
-No backend database, user authentication, Firebase, Google Maps, or external API keys are required.
+No user login, paid API, backend database, Firebase, Google Maps key, or external runtime API key is required.
 
----
-
-## Running Locally
+## Run Locally
 
 ### Prerequisites
-- Node.js 20+ and npm
 
-### Setup & Commands
+- Node.js 20 or newer
+- npm
+
+### Commands
 
 ```bash
-# Install dependencies
 npm install
-
-# Start the development server (http://localhost:3000)
 npm run dev
-
-# Type-check
 npm run lint
-
-# Run engine & validator unit tests
 npx tsx --test src/engine/journeyPlanner.test.ts src/engine/gtfsEngine.test.ts
-
-# Production build
 npm run build
 ```
 
----
+The local development server runs at:
+
+```text
+http://localhost:3000
+```
+
+## Development Note
+
+This project was built with React, TypeScript, and Google AI Studio Build. Google AI Studio was used as the development environment; the project-specific work includes selecting and integrating the Delhi GTFS and historical e-ticketing datasets, defining the exact route-matching and demand-estimation methodology, validating outputs, testing the planner, documenting limitations, and preparing the final prototype.
 
 ## Team
 
-- **[Team Member 1]** — Role / Contributions *(placeholder)*
-- **[Team Member 2]** — Role / Contributions *(placeholder)*
-- **[Team Member 3]** — Role / Contributions *(placeholder)*
+This is a joint team project. Both members contributed equally to the project research, data understanding, feature planning, testing, documentation, and final hackathon preparation.
+
+| Team Member | Role and Contributions |
+|---|---|
+| **Shri Narayan Tiwari** | Co-Creator and Project Owner — problem research, journey-planner feature design, data-methodology review, testing, documentation, demo preparation, and final submission coordination |
+| **Anant K. Yadav** | Co-Creator and Technical Contributor — Google AI Studio development, frontend implementation, data integration, interface refinement, testing, documentation, and demo preparation |
+
+---
+
+Built for **Transport Stack Hackathon 2026 — Problem 2: Crowdedness-Aware Journey Planner**.
