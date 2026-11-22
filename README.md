@@ -150,6 +150,14 @@ http://localhost:3000
 
 This project was built with React, TypeScript, and Google AI Studio Build. Google AI Studio was used as the development environment; the project-specific work includes selecting and integrating the Delhi GTFS and historical e-ticketing datasets, defining the exact route-matching and demand-estimation methodology, validating outputs, testing the planner, documenting limitations, and preparing the final prototype.
 
+
+## Testing Performed
+
+- Tested direct and one-transfer journey searches using real Delhi bus stops.
+- Verified route maps, historical-demand views, and ranking options.
+- Tested the responsive interface on a mobile phone.
+- Checked that the prototype clearly distinguishes historical demand from live occupancy or live arrival data.
+
 ## Team
 
 This is a joint team project. Both members contributed equally to the project research, data understanding, feature planning, testing, documentation, and final hackathon preparation.
